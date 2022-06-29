@@ -6,6 +6,10 @@ from rclpy.node import Node
 from tflite_msgs.msg import TFLite, TFInference
 from std_msgs.msg import String
 from rclpy.qos import QoSProfile
+from rclpy.exceptions import ParameterNotDeclaredException
+from rcl_interfaces.msg import Parameter
+from rcl_interfaces.msg import ParameterType
+from rcl_interfaces.msg import ParameterDescriptor
 from geometry_msgs.msg import Twist
 
 class NXPLightControl(Node):
@@ -41,7 +45,6 @@ class NXPLightControl(Node):
             type=ParameterType.PARAMETER_DOUBLE,
             description='Blink delay in seconds.')
 
-
         self.declare_parameter("led_pattern_topic", "/led_pattern", 
             led_pattern_topic_descriptor)
 
@@ -49,10 +52,10 @@ class NXPLightControl(Node):
             command_topic_descriptor)
 
         self.declare_parameter("tflite_topic_0", "/TFLiteSim", 
-            tf_lite_0_topic_descriptor)
+            tf_lite_topic_0_descriptor)
 
         self.declare_parameter("tflite_topic_1", "/TFLiteReal", 
-            tf_lite_1_topic_descriptor)
+            tf_lite_topic_1_descriptor)
 
         self.declare_parameter("threshold_0", 0.5, 
             threshold_0_descriptor)
@@ -81,7 +84,7 @@ class NXPLightControl(Node):
         self.StopMotors0 = False
         self.StopMotors1 = False
 
-    def CMDVelCallback(self, msgVel):
+    def CMDCallback(self, msgVel):
         linearX = msgVel.linear.x
         angularZ = msgVel.angular.z
 
@@ -141,9 +144,12 @@ class NXPLightControl(Node):
             self.BlinkPatternFinished = True
         return
 
-if __name__ == '__main__':
+def main(args=None):
     rclpy.init()
     NXPLC = NXPLightControl()
     rclpy.spin(NXPLC)
     NXPLC.destroy_node()
     rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
